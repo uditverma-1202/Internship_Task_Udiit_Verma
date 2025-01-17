@@ -1,0 +1,128 @@
+	## RDBMS Task - 4 ##
+1.Retrieve the names and contact details of employees hired after January 1, 2023.
+SELECT
+ concat(FirstName,' ',LastName) as EmployeeName , Email, Phone, Hiredate 
+FROM employees WHERE Hiredate >= '2023-01-01';
+
+2.Find the total payroll amount paid to each department.
+SELECT 
+    d.DepartmentName,
+    SUM(p.Amount) AS TotalPayroll
+FROM 
+    Payroll p
+JOIN 
+    Employees e ON p.EmployeeID = e.EmployeeID
+JOIN 
+    Departments d ON e.DepartmentID = d.DepartmentID
+GROUP BY 
+    d.DepartmentName;
+
+3.List all employees who have not been assigned a manager.
+SELECT * FROM `employees` WHERE ManagerID IS NULL;
+
+4.Retrieve the highest salary in each department along with the employee’s name.
+SELECT 
+    CONCAT(e.FirstName, ' ', e.LastName) AS employee_name,
+    d.DepartmentName,
+    e.Salary
+FROM 
+    Employees e
+JOIN 
+    Departments d ON e.DepartmentID = d.DepartmentID
+WHERE 
+    e.Salary = (
+        SELECT MAX(Salary)
+        FROM Employees
+        WHERE d.DepartmentID = e.DepartmentID
+    );
+
+5.Find the most recent performance review for each employee.
+SELECT 
+    pr.EmployeeID,
+    CONCAT(e.FirstName, ' ', e.LastName) AS employee_name,
+    pr.ReviewDate,
+    pr.PerformanceScore,
+    pr.Comments
+FROM 
+    PerformanceReviews pr
+JOIN 
+    Employees e ON pr.EmployeeID = e.EmployeeID
+WHERE 
+    pr.ReviewDate = (
+        SELECT MAX(ReviewDate)
+        FROM PerformanceReviews
+        WHERE EmployeeID = pr.EmployeeID
+    );
+
+6. Count the number of employees in each department.
+SELECT 
+    d.DepartmentName,
+    COUNT(e.EmployeeID) AS EmployeeCount
+FROM 
+    Departments d
+LEFT JOIN 
+    Employees e ON d.DepartmentID = e.DepartmentID
+GROUP BY 
+    d.DepartmentName;
+
+7.List all employees who have received a performance score of "Excellent." Identify the
+most frequently used payment method in payroll.
+SELECT 
+    e.EmployeeID,
+    CONCAT(e.FirstName, ' ', e.LastName) AS employee_name,
+    pr.ReviewDate,
+    pr.PerformanceScore,
+    pr.Comments
+FROM 
+    Employees e
+JOIN 
+    PerformanceReviews pr ON e.EmployeeID = pr.EmployeeID
+WHERE 
+    pr.PerformanceScore = 'Excellent';
+--------------------------------------------------------------
+SELECT 
+    PaymentMethod,
+    COUNT(PaymentMethod) AS Frequency
+FROM 
+    Payroll
+GROUP BY 
+    PaymentMethod
+ORDER BY 
+    Frequency DESC
+LIMIT 1;
+--------------------------------------------------------------
+
+8. Retrieve the top 5 highest-paid employees along with their departments.
+
+SELECT 
+    e.EmployeeID,
+    CONCAT(e.FirstName, ' ', e.LastName) AS employee_name,
+    d.DepartmentName,
+    e.Salary
+FROM 
+    Employees e
+JOIN 
+    Departments d ON e.DepartmentID = d.DepartmentID
+ORDER BY 
+    e.Salary DESC
+LIMIT 5;
+
+9.Show details of all employees who report directly to a specific manager (e.g.,
+ManagerID = 101).
+
+SELECT 
+    e.EmployeeID,
+    CONCAT(e.FirstName, ' ', e.LastName) AS employee_name,
+    e.Email,
+    e.Phone,
+    e.HireDate,
+    d.DepartmentName,
+    e.Salary
+FROM 
+    Employees e
+JOIN 
+    Departments d ON e.DepartmentID = d.DepartmentID
+WHERE 
+    e.ManagerID = 101;
+
+
